@@ -1,0 +1,109 @@
+﻿<script>
+document.onload = PopulateTable();
+
+function CallApiGet(url, method, object){
+    var xhttp = new XMLHttpRequest();;
+    var result;
+    var request = function(){
+         result = xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    return this.responseText;
+                }
+            };
+            xhttp.open("GET", url +"/"+method, true);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.send(object);
+        }
+    return result
+}
+
+function UserAction() {
+    var clientDate = new Date().getTime;
+    var textResult = CallApiGet("http://127.0.0.1:5000/api/", "currenttime", clientDate);
+    document.getElementById("output").innerHTML = this.responseText;
+    PopulateTable();
+}
+
+function PopulateTable(){
+    var jsonResult = CallApiGet("http://127.0.0.1:5000/api/", "clientInfo", "");
+
+
+    var col = [];
+        for (var i = 0; i < jsonResult.length; i++) {
+            for (var key in jsonResult[i]) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+        }
+    
+    var table = document.createElement("table");
+    table.id = "dataTable";
+    var tr = table.insertRow(-1); 
+
+    for (var i = 0; i < col.length; i++) {
+            var th = document.createElement("th");
+            th.innerHTML = col[i];
+            tr.appendChild(th);
+        }
+
+    for (var i = 0; i < jsonResult.length; i++) {
+
+            tr = table.insertRow(-1);
+
+            for (var j = 0; j < col.length; j++) {
+                var tabCell = tr.insertCell(-1);
+                tabCell.innerHTML = jsonResult[i][col[j]];
+            }
+        }
+
+        for (var i = 0; i < jsonResult.length; i++) {
+
+    tr = table.insertRow(-1);
+
+    for (var j = 0; j < col.length; j++) {
+        var tabCell = tr.insertCell(-1);
+        tabCell.innerHTML = jsonResult[i][col[j]];
+    }
+
+    var divContainer = document.getElementById("callResults");
+        divContainer.removeChild(document.getElementById("dataTable"));
+        divContainer.innerHTML = "";
+        divContainer.appendChild(table);
+}
+
+}
+
+
+</script>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) { 
+    h2{ max-width: 100%;}
+    #callResults{ max-width: 100%;}
+ }
+
+@media (min-width: 768px) and (max-width: 991.98px) { 
+    h2{ max-width: 80%;}
+    #callResults{ max-width: 80%;}
+ }
+
+@media (min-width: 992px) and (max-width: 1199.98px) { 
+    h2{ max-width: 60%;}
+    #callResults{ max-width: 60%;}
+ }
+
+
+</style>
+<h2>AWH Clockwork Project @ViewData["Version"] on @ViewData["Runtime"]!</h2>
+
+
+<button type="submit" onclick="UserAction()">Get the time</button>
+
+<p id="output"></p>
+<h2>Client Results: </h2>
+<div id="callResults"></div>
+<button type="button" onclick="PopulateTable()">Repopulate</button>
